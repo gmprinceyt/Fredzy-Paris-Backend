@@ -1,0 +1,22 @@
+{
+  "name": "fredzy-paris",
+  "version": "1.0.0",
+  "description": "E-commerce Project ",
+  "main": "index.js",
+  "scripts": {
+    "test": ""
+  },
+  "keywords": [
+    "E-commerce",
+    "Backend",
+    "Brand"
+  ],
+  "author": "Prince",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^24.0.10",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
