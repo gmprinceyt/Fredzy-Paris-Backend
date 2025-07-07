@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import { User } from "../model/user.js";
 import { NewUserRequestBody } from "../types/types.js";
-import { logger } from "../utils/logger.js";
+import { TryCatch } from "../middleware/error.js";
 
-export const newUser = async (
+export const newUser = TryCatch(
+  async (
   req: Request<Record<string, never>, unknown, NewUserRequestBody>,
-  res: Response
+  res: Response,
 ) => {
-  try {
     const { _id, name, email, gender, dob, photo } = req.body;
 
     const NewUser = await User.create({
@@ -19,18 +19,10 @@ export const newUser = async (
       photo,
     });
 
-    console.log(NewUser.age);
-
-    res.status(201).json({
+     res.status(201).json({
       success: true,
-      message: `User Created \n ,${NewUser}`,
+      message: `New User Created `,
+      data: `${NewUser}`
     });
-  } catch (error) {
-    logger.error(error);
-    res.status(500).json({
-      message: "internal server Error",
-      error: error,
-      success: false,
-    });
-  }
-};
+}
+)
