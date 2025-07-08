@@ -1,16 +1,28 @@
-import { Request, Response } from "express";
+import { Request } from "express";
 import { User } from "../model/user.js";
 import { NewUserRequestBody } from "../types/types.js";
 import { TryCatch } from "../middleware/error.js";
+import { ApiResponse, ErrorHandler } from "../utils/utills-class.js";
 
 export const newUser = TryCatch(
   async (
-  req: Request<Record<string, never>, unknown, NewUserRequestBody>,
-  res: Response,
-) => {
+    req: Request<Record<string, never>, unknown, NewUserRequestBody>,
+    res,
+    next
+  ) => {
     const { _id, name, email, gender, dob, photo } = req.body;
 
-    const NewUser = await User.create({
+    const user = await User.findById(_id);
+
+    if (user) {
+      return res.status(200).json(new ApiResponse(200, "Welcome", user.name));
+    }
+
+    if (!_id || !name || !email || !gender || !dob || !photo) {
+      return next(new ErrorHandler("Please Add All Field", 400));
+    }
+
+    const newUser = await User.create({
       _id,
       name,
       email,
@@ -19,10 +31,41 @@ export const newUser = TryCatch(
       photo,
     });
 
-     res.status(201).json({
-      success: true,
-      message: `New User Created `,
-      data: `${NewUser}`
-    });
-}
-)
+    res
+      .status(201)
+      .json(new ApiResponse(201, "User Created Succussfully ✅", newUser));
+  }
+);
+
+export const getallUser = TryCatch(async (req, res) => {
+  const users = await User.find({});
+  res.status(200).json(new ApiResponse(200, "Users Fatched success", users))
+});
+
+export const getUser = TryCatch(
+  async (req,res,next)=> {
+    const id = req.params.id;
+    const user = await User.findById(id);
+  if (!user){
+    return next(new ErrorHandler("invalid Id", 400));
+  }
+
+    res.status(200).json(new ApiResponse(200, "User Fatched", user));
+  }
+);
+export const delateUser = TryCatch(
+  async (req,res,next)=> {
+    const id = req.params.id;
+    const user = await User.findById(id);
+    
+  if (!user){
+    return next(new ErrorHandler("invalid Id", 400));
+  }
+
+  await user.deleteOne()
+
+    res.status(200).json(new ApiResponse(200, "User delete successfully", user));
+  }
+);
+
+

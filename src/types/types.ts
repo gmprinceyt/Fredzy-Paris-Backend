@@ -18,4 +18,4 @@ export type controller<
   req:  Request<Params, ResBody, ReqBody, ReqQuery>,
   res: Response,
   next: NextFunction
-) => Promise<void>;
+) => Promise<void | Response<unknown , Record<string ,unknown>>>;

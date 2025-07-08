@@ -5,4 +5,12 @@ class ErrorHandler extends Error {
     };
 };
 
-export {ErrorHandler};
+class ApiResponse {
+   constructor(public statusCode:number,public message:string , public data:string | unknown = null ){
+    this.statusCode = statusCode;
+    this.message = message;
+    this.data = data
+   }
+}
+
+export {ErrorHandler, ApiResponse};

@@ -8,4 +8,14 @@ class ErrorHandler extends Error {
     ;
 }
 ;
-export { ErrorHandler };
+class ApiResponse {
+    constructor(statusCode, message, data = null) {
+        this.statusCode = statusCode;
+        this.message = message;
+        this.data = data;
+        this.statusCode = statusCode;
+        this.message = message;
+        this.data = data;
+    }
+}
+export { ErrorHandler, ApiResponse };
