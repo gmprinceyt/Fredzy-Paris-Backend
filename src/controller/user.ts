@@ -61,6 +61,9 @@ export const delateUser = TryCatch(
   if (!user){
     return next(new ErrorHandler("invalid Id", 400));
   }
+  if(user.role == 'admin'){
+    return next(new ErrorHandler("You Take Dengerous Opration", 401))
+  }
 
   await user.deleteOne()
 

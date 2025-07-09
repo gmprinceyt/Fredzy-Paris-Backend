@@ -40,6 +40,9 @@ export const delateUser = TryCatch(async (req, res, next) => {
     if (!user) {
         return next(new ErrorHandler("invalid Id", 400));
     }
+    if (user.role == 'admin') {
+        return next(new ErrorHandler("You Take Dengerous Opration", 401));
+    }
     await user.deleteOne();
     res.status(200).json(new ApiResponse(200, "User delete successfully", user));
 });

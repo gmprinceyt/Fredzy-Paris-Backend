@@ -1,6 +1,5 @@
 import express  from "express";
 import { configDotenv } from "dotenv";
-import userRoute from "./routes/user.js";
 import { connect } from "./utils/database.connect.js";
 import { logger } from "./utils/logger.js";
 import { ErrorMiddleware } from "./middleware/error.js";
@@ -11,8 +10,11 @@ const app = express();
 app.use(express.json());
 
 
+import userRoute from "./routes/user.js";
+import productRoute from "./routes/product.js"
 //? Route Register
 app.use("/api/v1/user", userRoute);
+app.use("/api/v1/product",productRoute )
 
 // Error Middleware! Make Sure This Route At Last Line of Other Routes.
 app.use(ErrorMiddleware);

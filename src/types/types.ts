@@ -9,6 +9,15 @@ export interface NewUserRequestBody {
   gender: string;
 }
 
+export interface CreateProductRequestBody {
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  discription: string;
+  photo: string;
+}
+
 export type controller<
   Params = Record<string, unknown>,
   ResBody = unknown,
