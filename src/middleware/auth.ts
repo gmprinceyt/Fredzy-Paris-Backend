@@ -6,13 +6,13 @@ export  const adminOnly  =  TryCatch(
     async  (req,res,next)=>{
         const {id} = req.query;
         if(!id) {
-            return next(new ErrorHandler('invailid ID', 400));
+            return next(new ErrorHandler('only admin access route', 400));
         };
 
         const user = await User.findById(id);
 
         if (!user){
-            return next(new ErrorHandler("User Not Found", 404))
+            return next(new ErrorHandler("invailid ID", 404))
         }
 
         if (user.role !== 'admin'){

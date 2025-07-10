@@ -18,6 +18,7 @@ export interface CreateProductRequestBody {
   photo: string;
 }
 
+// For Custom async Handler
 export type controller<
   Params = Record<string, unknown>,
   ResBody = unknown,

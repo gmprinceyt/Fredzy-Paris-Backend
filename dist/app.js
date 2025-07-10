@@ -6,7 +6,7 @@ import { ErrorMiddleware } from "./middleware/error.js";
 configDotenv();
 const app = express();
 // Basic Middlewere
-app.use(express.json());
+app.use(express.json()); // accept json value in req.body
 import userRoute from "./routes/user.js";
 import productRoute from "./routes/product.js";
 //? Route Register
