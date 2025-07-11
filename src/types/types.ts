@@ -29,3 +29,11 @@ export type controller<
   res: Response,
   next: NextFunction
 ) => Promise<void | Response<unknown , Record<string ,unknown>>>;
+
+export type SearchRequestQuery  = {
+  search?:string;
+  category?:string;
+  price?:string;
+  sort?:string;
+  page?:string;
+}

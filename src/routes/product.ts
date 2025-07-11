@@ -6,6 +6,8 @@ import {
   getLatestProduct,
   deleteProducts,
   UpdateProduct,
+  getAllProducts,
+  searchProduct,
 } from "../controller/product.js";
 import { singleUpload } from "../middleware/multer.js";
 import { adminOnly } from "../middleware/auth.js";
@@ -18,6 +20,13 @@ app.get("/categories", getCategories);
 //api/v1/products/latest -> get latest 5 products
 app.get("/latest", getLatestProduct);
 
+//api/v1/products/search -> get all product with filters
+app.get("/search", searchProduct);
+
+//apiv1/product/admin-product
+app.get("/admin-product", adminOnly,  getAllProducts);
+
+//api/v1/products/.....
 app
   .route("/:id")
   .get(adminOnly, getSingalProducts)
