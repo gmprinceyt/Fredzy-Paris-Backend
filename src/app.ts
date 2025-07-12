@@ -12,6 +12,7 @@ export const cache = new NodeCache();
 
 // Basic Middlewere
 app.use(express.json()); // accept json value in Request
+app.use("/uploads",express.static('uploads'))
 
 import userRoute from "./routes/user.js";
 import productRoute from "./routes/product.js";
