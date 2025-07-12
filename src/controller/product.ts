@@ -3,11 +3,13 @@ import { Request } from "express";
 import { TryCatch } from "../middleware/error.js";
 import {
   CreateProductRequestBody,
+  SearchBaseQuery,
   SearchRequestQuery,
 } from "../types/types.js";
 import { Product } from "../model/product.js";
 import { ApiResponse, ErrorHandler } from "../utils/utills-class.js";
 import { logger } from "../utils/logger.js";
+import { SortOrder } from "mongoose";
 
 export const createProduct = TryCatch(
   async (
@@ -141,22 +143,41 @@ export const searchProduct = TryCatch(
     const { search, category, sort, price } = req.query;
     const page = Number(req.query.page) || 1;
     const limit = Number(process.env.PRODUCT_PAR_PAGE) || 8;
+
     const skip = (page - 1) * limit;
 
-    const baseQuery = {};
+    const baseQuery: SearchBaseQuery = {};
+    const sortQuery: { price?: SortOrder } = {};
 
-    if(search){
-      baseQuery['name'] = {
+    if (search) {
+      baseQuery.name = {
         $regex: search,
         $options: "i",
-      }
+      };
     }
-    if(price){
-      baseQuery['price'] = {
-        $regex: Number(price)
-      }
+    if (price) {
+      baseQuery.price = {
+        $lte: Number(price),
+      };
     }
-    const product = await Product.find(baseQuery);
-    res.status(200).json(new ApiResponse(200, "success", product));
+    if (category) baseQuery["category"] = category;
+
+    if (sort) {
+      sortQuery.price = sort === "asc" ? 1 : -1;
+    }
+
+    const productPromise = Product.find(baseQuery)
+      .sort(sortQuery)
+      .limit(limit)
+      .skip(skip);
+
+    const [products, filterOnlyProduct] = await Promise.all([productPromise,Product.find(baseQuery) ])
+
+    const pageLength = Math.ceil(filterOnlyProduct.length / limit);
+    res.status(200).json({
+      success: true,
+      products,
+      pageLength,
+    });
   }
 );

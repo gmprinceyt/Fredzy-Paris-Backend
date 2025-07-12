@@ -5,17 +5,16 @@ class ErrorHandler extends Error {
         this.statuscode = statuscode;
         this.statuscode = statuscode;
     }
-    ;
 }
-;
 class ApiResponse {
-    constructor(statusCode, message, data = null) {
+    constructor(statusCode = 200, message, data = {}) {
         this.statusCode = statusCode;
         this.message = message;
         this.data = data;
         this.statusCode = statusCode;
         this.message = message;
         this.data = data;
+        this.success = true;
     }
 }
 export { ErrorHandler, ApiResponse };

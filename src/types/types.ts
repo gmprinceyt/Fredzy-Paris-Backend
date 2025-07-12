@@ -25,15 +25,27 @@ export type controller<
   ReqBody = unknown,
   ReqQuery = Record<string, unknown>
 > = (
-  req:  Request<Params, ResBody, ReqBody, ReqQuery>,
+  req: Request<Params, ResBody, ReqBody, ReqQuery>,
   res: Response,
   next: NextFunction
-) => Promise<void | Response<unknown , Record<string ,unknown>>>;
+) => Promise<void | Response<unknown, Record<string, unknown>>>;
 
-export type SearchRequestQuery  = {
-  search?:string;
-  category?:string;
-  price?:string;
-  sort?:string;
-  page?:string;
-}
+export type SearchRequestQuery = {
+  search?: string;
+  category?: string;
+  price?: string;
+  sort?: string;
+  page?: string;
+};
+
+export type SearchBaseQuery = {
+  name?: {
+    $regex: string;
+    $options: string;
+  };
+  price?: {
+    $lte: number;
+  };
+  category?: string;
+};
+

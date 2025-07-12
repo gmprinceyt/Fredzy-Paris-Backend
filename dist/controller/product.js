@@ -115,17 +115,32 @@ export const searchProduct = TryCatch(async (req, res) => {
     const limit = Number(process.env.PRODUCT_PAR_PAGE) || 8;
     const skip = (page - 1) * limit;
     const baseQuery = {};
+    const sortQuery = {};
     if (search) {
-        baseQuery['name'] = {
+        baseQuery.name = {
             $regex: search,
             $options: "i",
         };
     }
     if (price) {
-        baseQuery['price'] = {
-            $regex: Number(price)
+        baseQuery.price = {
+            $lte: Number(price),
         };
     }
-    const product = await Product.find(baseQuery);
-    res.status(200).json(new ApiResponse(200, "success", product));
+    if (category)
+        baseQuery["category"] = category;
+    if (sort) {
+        sortQuery.price = sort === "asc" ? 1 : -1;
+    }
+    const productPromise = Product.find(baseQuery)
+        .sort(sortQuery)
+        .limit(limit)
+        .skip(skip);
+    const [products, filterOnlyProduct] = await Promise.all([productPromise, Product.find(baseQuery)]);
+    const pageLength = Math.ceil(filterOnlyProduct.length / limit);
+    res.status(200).json({
+        success: true,
+        products,
+        pageLength,
+    });
 });
