@@ -49,3 +49,8 @@ export type SearchBaseQuery = {
   category?: string;
 };
 
+export type RevailidateCacheType = {
+  product?:boolean;
+  admin?:boolean;
+  order?:boolean;
+}

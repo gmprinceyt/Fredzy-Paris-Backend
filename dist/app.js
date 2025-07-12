@@ -3,10 +3,13 @@ import { configDotenv } from "dotenv";
 import { connect } from "./utils/database.connect.js";
 import { logger } from "./utils/logger.js";
 import { ErrorMiddleware } from "./middleware/error.js";
+import NodeCache from "node-cache";
 configDotenv();
 const app = express();
+//NodeCache For Better Performance
+export const cache = new NodeCache();
 // Basic Middlewere
-app.use(express.json()); // accept json value in req.body
+app.use(express.json()); // accept json value in Request
 import userRoute from "./routes/user.js";
 import productRoute from "./routes/product.js";
 //? Route Register
@@ -21,7 +24,7 @@ function main() {
         app.listen(PORT, () => {
             logger.info(`Express runing  at http://localhost:${PORT}`);
         });
-        app.on('error', (error) => {
+        app.on("error", (error) => {
             logger.error("express server failed ", error);
         });
     });

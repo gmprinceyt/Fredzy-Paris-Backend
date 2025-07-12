@@ -10,6 +10,8 @@ import { Product } from "../model/product.js";
 import { ApiResponse, ErrorHandler } from "../utils/utills-class.js";
 import { logger } from "../utils/logger.js";
 import { SortOrder } from "mongoose";
+import { cache } from "../app.js";
+import RevailidateCache from "../utils/RevailidateCache.js";
 
 export const createProduct = TryCatch(
   async (
@@ -41,22 +43,69 @@ export const createProduct = TryCatch(
       photo: photo?.path,
     });
 
+    RevailidateCache({ product: true });
     return res
       .status(201)
       .json(new ApiResponse(201, "Product Createed Successfully", product));
   }
 );
 
+// revaildate caching  with update/create/delate & order
 export const getCategories = TryCatch(async (req, res) => {
-  const category = await Product.distinct("category");
+  let category = [];
+
+  if (cache.has("categories")) {
+    category = JSON.parse(cache.get("categories") as string);
+  } else {
+    category = await Product.distinct("category");
+    cache.set("categories", JSON.stringify(category));
+  }
   res.status(200).json(new ApiResponse(200, "success", category));
 });
 
+// revaildate caching  with update/create/delate & order
 export const getSingalProducts = TryCatch(async (req, res, next) => {
   const id = req.params.id;
   if (!id) return next(new ErrorHandler("Enter Id"));
-  const product = await Product.findById(id);
-  if (!product) return next(new ErrorHandler("Products Id", 404));
+
+  let product;
+
+  if (cache.has(`single-${id}`)) {
+    product = JSON.parse(cache.get(`single-${id}`) as string);
+  } else {
+    product = await Product.findById(id);
+    if (!product) return next(new ErrorHandler("Products Id", 404));
+
+    cache.set(`single-${id}`, JSON.stringify(product));
+  }
+  res.status(200).json(new ApiResponse(200, "success", product));
+});
+
+// revaildate caching  with update/create/delate & order
+export const getLatestProduct = TryCatch(async (req, res) => {
+  let product;
+
+  if (cache.has("latest-product")) {
+    product = JSON.parse(cache.get("latest-product") as string);
+  } else {
+    product = await Product.find({}).sort({ createdAt: -1 }).limit(5);
+    cache.set("latest-product", JSON.stringify(product));
+  }
+  res
+    .status(200)
+    .json(new ApiResponse(200, "data Fatched sucessfully", product));
+});
+
+// revaildate caching  with update/create/delate & order
+export const getAllProducts = TryCatch(async (req, res) => {
+  let product;
+
+  if (cache.has("all-product")) {
+    product = JSON.parse(cache.get("all-product") as string);
+  } else {
+    product = await Product.find({});
+    cache.set("all-product", JSON.stringify(product));
+  }
   res.status(200).json(new ApiResponse(200, "success", product));
 });
 
@@ -77,14 +126,9 @@ export const deleteProducts = TryCatch(async (req, res, next) => {
     logger.info("Photo Deleted Successfuly");
   }
   await product.deleteOne();
-  res.status(200).json(new ApiResponse(200, "Product delete successfully"));
-});
+  RevailidateCache({ product: true });
 
-export const getLatestProduct = TryCatch(async (req, res) => {
-  const product = await Product.find({}).sort({ createdAt: -1 }).limit(5);
-  res
-    .status(200)
-    .json(new ApiResponse(200, "data Fatched sucessfully", product));
+  res.status(200).json(new ApiResponse(200, "Product delete successfully"));
 });
 
 export const UpdateProduct = TryCatch(
@@ -123,17 +167,13 @@ export const UpdateProduct = TryCatch(
     if (price) product.price = price;
 
     await product.save();
+    RevailidateCache({ product: true });
 
     res
       .status(200)
       .json(new ApiResponse(200, "Product Updated successfully", product));
   }
 );
-
-export const getAllProducts = TryCatch(async (req, res) => {
-  const product = await Product.find({});
-  res.status(200).json(new ApiResponse(200, "success", product));
-});
 
 export const searchProduct = TryCatch(
   async (
@@ -171,7 +211,10 @@ export const searchProduct = TryCatch(
       .limit(limit)
       .skip(skip);
 
-    const [products, filterOnlyProduct] = await Promise.all([productPromise,Product.find(baseQuery) ])
+    const [products, filterOnlyProduct] = await Promise.all([
+      productPromise,
+      Product.find(baseQuery),
+    ]);
 
     const pageLength = Math.ceil(filterOnlyProduct.length / limit);
     res.status(200).json({
