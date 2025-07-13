@@ -4,7 +4,7 @@ import { Product } from "../model/product.js";
 import { ApiResponse, ErrorHandler } from "../utils/utills-class.js";
 import { logger } from "../utils/logger.js";
 import { cache } from "../app.js";
-import RevailidateCache from "../utils/RevailidateCache.js";
+import { RevailidateCache } from "../utils/feature.js";
 export const createProduct = TryCatch(async (req, res, next) => {
     const { name, category, price, stock, discription } = req.body;
     const photo = req.file;
@@ -27,7 +27,7 @@ export const createProduct = TryCatch(async (req, res, next) => {
         discription,
         photo: photo?.path,
     });
-    RevailidateCache({ product: true });
+    await RevailidateCache({ product: true });
     return res
         .status(201)
         .json(new ApiResponse(201, "Product Createed Successfully", product));

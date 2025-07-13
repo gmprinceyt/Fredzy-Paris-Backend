@@ -11,7 +11,7 @@ import { ApiResponse, ErrorHandler } from "../utils/utills-class.js";
 import { logger } from "../utils/logger.js";
 import { SortOrder } from "mongoose";
 import { cache } from "../app.js";
-import RevailidateCache from "../utils/RevailidateCache.js";
+import {RevailidateCache} from "../utils/feature.js";
 
 export const createProduct = TryCatch(
   async (
@@ -43,7 +43,7 @@ export const createProduct = TryCatch(
       photo: photo?.path,
     });
 
-    RevailidateCache({ product: true });
+   await RevailidateCache({ product: true });
     return res
       .status(201)
       .json(new ApiResponse(201, "Product Createed Successfully", product));

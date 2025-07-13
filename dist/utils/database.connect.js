@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { logger } from "./logger.js";
-export const connect = async () => {
+export const connect = async (url) => {
     try {
         // After Connect Database Message log
         mongoose.connection.on('connected', () => {
@@ -18,7 +18,7 @@ export const connect = async () => {
         mongoose.connection.on('reconnected', () => {
             logger.info(`🔃 Database reconnected`);
         });
-        await mongoose.connect(`${process.env.DATABASE_URL}/fredzy-paris`);
+        await mongoose.connect(`${url}/fredzy-paris`);
     }
     catch (error) {
         logger.error('Database Connection Failed 🚫', error);

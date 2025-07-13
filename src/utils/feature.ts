@@ -1,6 +1,7 @@
 import { cache } from "../app.js";
 import { Product } from "../model/product.js";
-import { RevailidateCacheType } from "../types/types.js";
+import { orderItemsType, RevailidateCacheType } from "../types/types.js";
+import { ErrorHandler } from "./utills-class.js";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function RevailidateCache({ product, order, admin }: RevailidateCacheType) {
@@ -22,4 +23,19 @@ async function RevailidateCache({ product, order, admin }: RevailidateCacheType)
 //   }
 }
 
-export default RevailidateCache;
+
+function ReduceStock(orderItems: orderItemsType[]){
+
+  orderItems.forEach(async (oI)=> {
+    const product = await Product.findById(oI.productId);
+
+    if (!product) return new ErrorHandler("Product Not Found!", 404);
+
+    product.stock -= oI.quantity; 
+
+    await product.save();
+    
+  })
+}
+
+export  {RevailidateCache,ReduceStock};
