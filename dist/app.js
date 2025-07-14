@@ -8,12 +8,12 @@ import morgan from "morgan";
 config({
     path: ".env"
 });
-morgan("dev");
 const app = express();
 //NodeCache For Better Performance
 export const cache = new NodeCache();
 // Basic Middlewere
 app.use(express.json()); // accept json value in Request
+app.use(morgan("dev"));
 app.use("/uploads", express.static('uploads'));
 import userRoute from "./routes/user.js";
 import productRoute from "./routes/product.js";
