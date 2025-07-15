@@ -3,39 +3,40 @@ import { Product } from "../model/product.js";
 import { orderItemsType, RevailidateCacheType } from "../types/types.js";
 import { ErrorHandler } from "./utills-class.js";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function RevailidateCache({ product, order, admin }: RevailidateCacheType) {
+async function RevailidateCache({
+  product,
+  order,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  admin,
+  orderid,
+  userId,
+  productId,
+}: RevailidateCacheType) {
   if (product) {
     const cacheKeys = ["categories", "latest-product", "all-product"];
 
-    //`single-${id}`
-    const singleProductIDs = await Product.find({}).select("_id");
-    
-    singleProductIDs.forEach((i)=> {
-        cacheKeys.push(`single-${i._id}`)
-    });
-
+    if (typeof productId === "string") cacheKeys.push(`single-${productId}`);
+    if (typeof productId === "object") {
+      productId.forEach((i) => cacheKeys.push(`single-${i}`));
+    }
     cache.del(cacheKeys);
   }
-//   if (admin) {
-//   }
-//   if (order) {
-//   }
+  if (order) {
+    const keys = [`orders-${userId}`, "all-order", `single-${orderid}`];
+    cache.del(keys);
+  }
 }
 
-
-function ReduceStock(orderItems: orderItemsType[]){
-
-  orderItems.forEach(async (oI)=> {
-    const product = await Product.findById(oI.productId);
+function ReduceStock(orderItems: orderItemsType[]) {
+  orderItems.forEach(async (orderItems) => {
+    const product = await Product.findById(orderItems.productId);
 
     if (!product) return new ErrorHandler("Product Not Found!", 404);
 
-    product.stock -= oI.quantity; 
+    product.stock -= orderItems.quantity;
 
     await product.save();
-    
-  })
+  });
 }
 
-export  {RevailidateCache,ReduceStock};
+export { RevailidateCache, ReduceStock };

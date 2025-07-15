@@ -19,21 +19,20 @@ export interface CreateProductRequestBody {
 }
 
 export type orderItemsType = {
-  name:string;
+  name: string;
   photo: string;
   price: number;
   quantity: number;
   productId: string;
 };
 
-export type ShippinfInfomation ={
+export type ShippinfInfomation = {
   address: string;
-  state: string;  
+  state: string;
   city: string;
-  country:string;
+  country: string;
   pincode: number;
-
-}
+};
 
 export interface CreateNewOrder {
   shippingInfo: ShippinfInfomation;
@@ -44,7 +43,7 @@ export interface CreateNewOrder {
   discount: number;
   total: number;
   status: string;
-  orderItems:orderItemsType[];
+  orderItems: orderItemsType[];
 }
 
 // For Custom async Handler
@@ -82,4 +81,7 @@ export type RevailidateCacheType = {
   product?: boolean;
   admin?: boolean;
   order?: boolean;
+  orderid?: string;
+  userId?: string;
+  productId?: string |  string[];
 };
