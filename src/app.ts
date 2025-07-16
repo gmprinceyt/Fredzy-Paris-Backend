@@ -21,11 +21,14 @@ app.use("/uploads",express.static('uploads'))
 
 import userRoute from "./routes/user.js";
 import productRoute from "./routes/product.js";
-import orderRoutes from './routes/order.js'
+import orderRoutes from './routes/order.js';
+import paymentRoutes from './routes/payment.js';
+
 //? Route Register
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/product", productRoute);
 app.use("/api/v1/order",orderRoutes);
+app.use("/api/v1/payment",paymentRoutes);
 
 
 //test Api 

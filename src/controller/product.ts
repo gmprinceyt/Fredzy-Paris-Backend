@@ -126,7 +126,7 @@ export const deleteProducts = TryCatch(async (req, res, next) => {
     logger.info("Photo Deleted Successfuly");
   }
   await product.deleteOne();
-  RevailidateCache({ product: true });
+  await RevailidateCache({ product: true , productId: String(id)});
 
   res.status(200).json(new ApiResponse(200, "Product delete successfully"));
 });
@@ -167,7 +167,7 @@ export const UpdateProduct = TryCatch(
     if (price) product.price = price;
 
     await product.save();
-    RevailidateCache({ product: true });
+    await RevailidateCache({ product: true , productId: id});
 
     res
       .status(200)
