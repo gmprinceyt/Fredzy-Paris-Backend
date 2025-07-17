@@ -23,12 +23,14 @@ import userRoute from "./routes/user.js";
 import productRoute from "./routes/product.js";
 import orderRoutes from './routes/order.js';
 import paymentRoutes from './routes/payment.js';
+import inventoryRoutes from './routes/inventory.js';
 
 //? Route Register
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/product", productRoute);
 app.use("/api/v1/order",orderRoutes);
 app.use("/api/v1/payment",paymentRoutes);
+app.use("/api/v1/inventory",inventoryRoutes);
 
 
 //test Api 
