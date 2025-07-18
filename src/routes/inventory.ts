@@ -3,6 +3,8 @@ import { getDesboardData } from '../controller/inventory.js';
 
 const app = express.Router();
 
-app.get('/desboard', getDesboardData)
+
+///api/v1/inventory/desboard
+app.get('/desboard', getDesboardData);
 
 export default app;

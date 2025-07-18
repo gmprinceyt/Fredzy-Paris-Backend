@@ -44,7 +44,7 @@ function CalculateParcentage(CreatedThisMonth: number, CreatedLastMonth:number){
   // ex- 8-2 = 6/2 =3*100=300
   if (CreatedLastMonth === 0) return CreatedThisMonth*100;
     const parcent = ((CreatedThisMonth - CreatedLastMonth)/CreatedLastMonth)*100;
-    return parcent;
+    return Number(parcent.toFixed(0));
 }
 
 export { RevailidateCache, ReduceStock,CalculateParcentage };
