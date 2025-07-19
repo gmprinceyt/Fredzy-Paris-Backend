@@ -6,8 +6,9 @@ next) => {
     const statuscode = err.statuscode || 500;
     if (err.name === "CastError") {
         res.status(statuscode).json({
-            message: "invaild id Or something else",
-            success: false
+            err: err.message,
+            success: false,
+            massage: "CastError Error Popped"
         });
         return;
     }
