@@ -107,7 +107,7 @@ export const newOrder = TryCatch(
 
     //Reduce Stock
     ReduceStock(orderItems);
-    await RevailidateCache({
+    RevailidateCache({
       product: true,
       order: true,
       admin: true,
@@ -144,7 +144,7 @@ export const updateOrderStatus = TryCatch(async (req, res, next) => {
   }
 
   await order.save();
-  await RevailidateCache({
+  RevailidateCache({
     product: false,
     order: true,
     admin: true,
@@ -169,7 +169,7 @@ export const deleteOrder = TryCatch(async (req, res, next) => {
 
   await order.deleteOne();
 
-  await RevailidateCache({
+  RevailidateCache({
     product: false,
     order: true,
     admin: true,

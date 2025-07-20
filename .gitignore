@@ -6,7 +6,6 @@ uploads
 logs\combined.log
 ### Node ###
 # Logs
-test.js
 
 logs
 *.log
@@ -16,7 +15,6 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Runtime data

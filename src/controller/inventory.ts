@@ -4,6 +4,7 @@ import { Order } from "../model/order.js";
 import { Product } from "../model/product.js";
 import { User } from "../model/user.js";
 import { CalculateParcentage } from "../utils/feature.js";
+import { getChartDataByMonth } from "../utils/RepeatCode.js";
 import { ApiResponse } from "../utils/utills-class.js";
 
 export const getdashboardData = TryCatch(async (req, res) => {
@@ -24,7 +25,7 @@ export const getdashboardData = TryCatch(async (req, res) => {
     };
 
     const lastSixMonth = new Date();
-    lastSixMonth.setMonth(lastSixMonth.getMonth() - 6);
+    lastSixMonth.setMonth((lastSixMonth.getMonth() - 6 + 12) % 12);
 
     //filter data by date
     const filterForThisMonth = {
@@ -56,7 +57,7 @@ export const getdashboardData = TryCatch(async (req, res) => {
         $gte: lastSixMonth,
         $lte: today,
       },
-    });
+    }).select(["total","discount","createdAt"]).lean();
 
     // latest 4 Transaction
     const latestFourTransactionPromise = Order.find({})
@@ -124,19 +125,8 @@ export const getdashboardData = TryCatch(async (req, res) => {
     };
 
     //Last Six Month Revenue And Orders
-    const lastSixMonthOrderCount = new Array(6).fill(0);
-    const lastSixMonthRevenues = new Array(6).fill(0);
-
-    lastSixMonthOrder.forEach((orders) => {
-      const orderCreationDate = orders.createdAt;
-      const monthDiff = today.getMonth() - orderCreationDate.getMonth();
-
-      lastSixMonthOrderCount[
-        lastSixMonthOrderCount.length - monthDiff - 1
-      ] += 1;
-      lastSixMonthRevenues[lastSixMonthRevenues.length - monthDiff - 1] +=
-        orders.total;
-    });
+    const lastSixMonthOrderCount = getChartDataByMonth({length: 6, docArr: lastSixMonthOrder, today})
+    const lastSixMonthRevenues = getChartDataByMonth({length: 6, docArr: lastSixMonthOrder, today, property: "total"})
 
     // Categories Percent of All Product Stock
     const CategoriesByProductCountPromise = Categories.map((category) =>
@@ -198,40 +188,207 @@ export const pieChartData = TryCatch(async (req, res) => {
   if (cache.has(key)) {
     pie = JSON.parse(cache.get(key) as string);
   } else {
+    const allOrdersPromise = Order.find({}).select([
+      "total",
+      "subtotal",
+      "discount",
+      "tax",
+      "shippingCharges",
+    ]);
     const [
       ProcessingOrder,
       ShippedOrder,
       DeliveredOrder,
       ProductCount,
-      OutOfStockProduct
+      OutOfStockProduct,
+      allOrders,
+      allUserCount,
+      AllAdminCount,
+      UsersWithDOB,
     ] = await Promise.all([
       Order.countDocuments({ status: "Processing" }),
       Order.countDocuments({ status: "Shipped" }),
       Order.countDocuments({ status: "Delivered" }),
       Product.countDocuments(),
-      Product.countDocuments({stock:0})
+      Product.countDocuments({ stock: 0 }),
+      allOrdersPromise,
+      User.countDocuments({ role: "user" }),
+      User.countDocuments({ role: "admin" }),
+      User.find({}).select(["dob"]),
     ]);
 
-    // order fullfield radio
+    // order fullfield radion
     const orderfullfieldRadio = {
       processing: ProcessingOrder,
       shipped: ShippedOrder,
-      delivered: DeliveredOrder
-    }
+      delivered: DeliveredOrder,
+    };
 
-    // stock availadblity 
-    const  stockAvailadblity ={
+    // stock availadblity Data
+    const stockAvailadblity = {
       inStockProduct: ProductCount - OutOfStockProduct,
-      OutOfStockProduct
-    } 
+      OutOfStockProduct,
+    };
 
-    pie ={
+    const grossMargin = allOrders.reduce(
+      (prev, orders) => prev + (orders.total || 0),
+      0
+    );
+    const discount = allOrders.reduce(
+      (prev, orders) => prev + (orders.discount || 0),
+      0
+    );
+    const burnt = allOrders.reduce(
+      (prev, orders) => prev + (orders.tax || 0),
+      0
+    );
+    const producationCost = allOrders.reduce(
+      (prev, orders) => prev + (orders.shippingCharges || 0),
+      0
+    );
+    const marketingCost = Math.round((grossMargin * 20) / 100);
+    const netMargin = Math.round(
+      grossMargin - discount - producationCost - marketingCost - burnt
+    );
+
+    // Revenue Distribution Data
+    const revenueDistribution = {
+      netMargin,
+      discount,
+      producationCost,
+      marketingCost,
+      burnt,
+    };
+
+    const UsersRadio = {
+      user: allUserCount,
+      admin: AllAdminCount,
+    };
+
+    const ageRadio = {
+      teenAge: UsersWithDOB.filter((u) => u.age < 20).length,
+      adult: UsersWithDOB.filter((u) => u.age > 20 && u.age < 40).length,
+      old: UsersWithDOB.filter((u) => u.age > 40).length,
+    };
+
+    pie = {
       orderfullfieldRadio,
-      stockAvailadblity
-    }
-
-
+      stockAvailadblity,
+      revenueDistribution,
+      UsersRadio,
+      ageRadio,
+    };
+    cache.set(key, JSON.stringify(pie));
   }
 
   res.status(200).json(new ApiResponse(200, "Pie Charts Data Fetched", pie));
 });
+
+export const barChartData = TryCatch(async (req, res) => {
+  let bar = {};
+  const key = "bar-chart";
+
+  if (cache.has(key)) {
+    bar = JSON.parse(cache.get(key) as string);
+  } else {
+    const today = new Date();
+    const SixMonthAgo = new Date();
+    SixMonthAgo.setMonth(SixMonthAgo.getMonth() - 6);
+
+    const TwelveMonthAgo = new Date();
+    TwelveMonthAgo.setMonth(TwelveMonthAgo.getMonth() - 12);
+
+    const filterQuery = {
+      createdAt: {
+        $gte: SixMonthAgo,
+        $lte: today,
+      },
+    };
+    const lastSixMonthProductsPromise = Product.find(filterQuery)
+      .select(["createdAt"])
+      .lean();
+    const lastSixMonthUsersPromise = User.find(filterQuery)
+      .select(["createdAt"])
+      .lean();
+
+    const lastTwelveMonthOrdersPromise = Order.find({
+      createdAt: {
+        $gte: TwelveMonthAgo,
+        $lte: today,
+      },
+    })
+      .select(["createdAt"])
+      .lean();
+
+    const [FilterProducts, FilterOrders, FilterUser] = await Promise.all([
+      lastSixMonthProductsPromise,
+      lastTwelveMonthOrdersPromise,
+      lastSixMonthUsersPromise,
+    ]);
+
+    const lastSixMonthProducts = getChartDataByMonth({
+      length: 6,
+      docArr: FilterProducts,
+      today: today,
+    });
+    const lastSixMonthUsers = getChartDataByMonth({
+      length: 6,
+      docArr: FilterUser,
+      today: today,
+    });
+    const lastTwelveMonthOrders = getChartDataByMonth({
+      length: 12,
+      docArr: FilterOrders,
+      today: today,
+    });
+
+    bar = { lastSixMonthProducts, lastSixMonthUsers, lastTwelveMonthOrders };
+
+    cache.set(key, JSON.stringify(bar))
+  }
+
+  res.status(200).json(new ApiResponse(200, "barChart Data Fetched", bar));
+});
+
+
+export const lineCharts = TryCatch( async (req, res) => {
+  let line = {};
+  const  key = "line-chart";
+
+  if(cache.has(key)){
+    line =  JSON.stringify(cache.get(key) as string)
+  }else {
+    const today = new Date();
+    const twelveMonth = new Date();
+    twelveMonth.setMonth(twelveMonth.getMonth() - 12);
+
+
+    const filterQuery = {
+      createdAt: {
+        $gte: twelveMonth,
+        $lte: today
+      }
+    }
+    const lasttwavleMonthUserPromise = User.find(filterQuery).select("createdAt").lean()
+    const lasttwavleMonthProductPromise = Product.find(filterQuery).select("createdAt").lean()
+    const lasttwavleMonthOrderPromise = Order.find(filterQuery).select(["total" ,"discount", "createdAt"]).lean()
+
+    const [lasttwavleMonthUser, lastTwavleMonthProduct, lastTwavleMonthOrder] =await Promise.all([
+      lasttwavleMonthUserPromise,
+      lasttwavleMonthProductPromise,
+      lasttwavleMonthOrderPromise,
+    ]);
+
+    
+    line = {
+        lastTwavleMonthUser:getChartDataByMonth({length: 12, docArr: lasttwavleMonthUser, today: today }) ,
+        lastTwavleMonthProduct:getChartDataByMonth({length: 12, docArr: lastTwavleMonthProduct, today: today }) ,
+        lastTwavleMonthDiscount: getChartDataByMonth({length: 12, docArr: lastTwavleMonthOrder, today: today,  property: "discount"}) ,
+        lastTwavleMonthRevenue: getChartDataByMonth({length: 12, docArr: lastTwavleMonthOrder, today: today,  property: "total"}) ,
+    } 
+
+    cache.set(key, JSON.stringify(line))
+
+  }
+  res.status(200).json(new ApiResponse(200, "LineCharts data Fetched ", line))
+})
