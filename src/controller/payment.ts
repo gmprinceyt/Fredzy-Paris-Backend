@@ -43,33 +43,39 @@ export const verify = TryCatch(
   async (req: Request<Record<string, unknown>, unknown, Verify>, res, next) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
       req.body;
+    console.log("Received data:", { razorpay_order_id, razorpay_payment_id, razorpay_signature });
+
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
+    console.log("Generated sign string:", sign);
 
     if (!process.env.PAYMENT_SECRET) {
-     return  next( new ErrorHandler("Payment Key  is not set in environment variables"));
+      return next(
+        new ErrorHandler("Payment Key  is not set in environment variables")
+      );
     }
-
     const expectedSignature = crypto
       .createHmac("sha256", process.env.PAYMENT_SECRET)
       .update(sign.toString())
       .digest("hex");
 
+    console.log("Expected Signature:", expectedSignature);
+    console.log("Razorpay Signature (received):", razorpay_signature);
+
     const isAuthentic = expectedSignature === razorpay_signature;
+    console.log("Is Authentic:", isAuthentic);
 
-    if (isAuthentic) {
-      //Save In Database
-      await Payment.create({
-        razorpay_order_id,
-        razorpay_payment_id,
-        razorpay_signature,
-      });
-
-      return res.status(200).json({
-        message: "Payment Successfully done!",
-      });
-    }
     if (!isAuthentic)
       return next(new ErrorHandler("Payment Verifaction failed", 400));
+    //Save In Database
+    await Payment.create({
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    });
+
+    return res.status(200).json({
+      message: "Payment Successfully done!",
+    });
   }
 );
 

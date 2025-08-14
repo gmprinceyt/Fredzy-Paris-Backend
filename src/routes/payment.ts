@@ -10,8 +10,8 @@ import {
 import { adminOnly } from "../middleware/auth.js";
 const app = express.Router();
 
-app.post("/order", createOrder)
-app.post("/verify", verify)
+app.post("/order", createOrder);
+app.post("/verify", verify);
 app.get("/coupon/discount", couponDiscount);
 // api/v1/payment/coupon/new
 app.post("/coupon/new", adminOnly, createCoupon);
