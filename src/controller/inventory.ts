@@ -57,13 +57,15 @@ export const getdashboardData = TryCatch(async (req, res) => {
         $gte: lastSixMonth,
         $lte: today,
       },
-    }).select(["total","discount","createdAt"]).lean();
+    })
+      .select(["total", "discount", "createdAt"])
+      .lean();
 
     // latest 4 Transaction
     const latestFourTransactionPromise = Order.find({})
       .sort({ createdAt: -1 })
       .select(["orderItems", "status", "discount", "total"])
-      .limit(4);
+      .limit(5);
 
     const [
       ThisMonthProducts,
@@ -125,8 +127,17 @@ export const getdashboardData = TryCatch(async (req, res) => {
     };
 
     //Last Six Month Revenue And Orders
-    const lastSixMonthOrderCount = getChartDataByMonth({length: 6, docArr: lastSixMonthOrder, today})
-    const lastSixMonthRevenues = getChartDataByMonth({length: 6, docArr: lastSixMonthOrder, today, property: "total"})
+    const lastSixMonthOrderCount = getChartDataByMonth({
+      length: 6,
+      docArr: lastSixMonthOrder,
+      today,
+    });
+    const lastSixMonthRevenues = getChartDataByMonth({
+      length: 6,
+      docArr: lastSixMonthOrder,
+      today,
+      property: "total",
+    });
 
     // Categories Percent of All Product Stock
     const CategoriesByProductCountPromise = Categories.map((category) =>
@@ -163,6 +174,7 @@ export const getdashboardData = TryCatch(async (req, res) => {
       });
     });
 
+    // Add Data In State
     stats = {
       dataIncresmentlastMonth: percent,
       countData,
@@ -344,51 +356,78 @@ export const barChartData = TryCatch(async (req, res) => {
 
     bar = { lastSixMonthProducts, lastSixMonthUsers, lastTwelveMonthOrders };
 
-    cache.set(key, JSON.stringify(bar))
+    cache.set(key, JSON.stringify(bar));
   }
 
   res.status(200).json(new ApiResponse(200, "barChart Data Fetched", bar));
 });
 
-
-export const lineCharts = TryCatch( async (req, res) => {
+export const lineCharts = TryCatch(async (req, res) => {
   let line = {};
-  const  key = "line-chart";
+  const key = "line-chart";
 
-  if(cache.has(key)){
-    line =  JSON.stringify(cache.get(key) as string)
-  }else {
+  if (cache.has(key)) {
+    line = JSON.stringify(cache.get(key) as string);
+  } else {
     const today = new Date();
     const twelveMonth = new Date();
     twelveMonth.setMonth(twelveMonth.getMonth() - 12);
 
-
     const filterQuery = {
       createdAt: {
         $gte: twelveMonth,
-        $lte: today
-      }
-    }
-    const lasttwavleMonthUserPromise = User.find(filterQuery).select("createdAt").lean()
-    const lasttwavleMonthProductPromise = Product.find(filterQuery).select("createdAt").lean()
-    const lasttwavleMonthOrderPromise = Order.find(filterQuery).select(["total" ,"discount", "createdAt"]).lean()
+        $lte: today,
+      },
+    };
+    const lasttwavleMonthUserPromise = User.find(filterQuery)
+      .select("createdAt")
+      .lean();
+    const lasttwavleMonthProductPromise = Product.find(filterQuery)
+      .select("createdAt")
+      .lean();
+    const lasttwavleMonthOrderPromise = Order.find(filterQuery)
+      .select(["total", "discount", "createdAt"])
+      .lean();
 
-    const [lasttwavleMonthUser, lastTwavleMonthProduct, lastTwavleMonthOrder] =await Promise.all([
-      lasttwavleMonthUserPromise,
-      lasttwavleMonthProductPromise,
-      lasttwavleMonthOrderPromise,
-    ]);
+    const [lasttwavleMonthUser, lastTwavleMonthProduct, lastTwavleMonthOrder] =
+      await Promise.all([
+        lasttwavleMonthUserPromise,
+        lasttwavleMonthProductPromise,
+        lasttwavleMonthOrderPromise,
+      ]);
 
-    
+    const lastTwavleMonthUsers = getChartDataByMonth({
+      length: 12,
+      docArr: lasttwavleMonthUser,
+      today: today,
+    });
+
+    const lastTwavleMonthProducts = getChartDataByMonth({
+      length: 12,
+      docArr: lastTwavleMonthProduct,
+      today: today,
+    });
+    const lastTwavleMonthDiscounts = getChartDataByMonth({
+      length: 12,
+      docArr: lastTwavleMonthOrder,
+      today: today,
+      property: "discount",
+    });
+    const lastTwavleMonthRevenues = getChartDataByMonth({
+      length: 12,
+      docArr: lastTwavleMonthOrder,
+      today: today,
+      property: "total",
+    });
+
     line = {
-        lastTwavleMonthUser:getChartDataByMonth({length: 12, docArr: lasttwavleMonthUser, today: today }) ,
-        lastTwavleMonthProduct:getChartDataByMonth({length: 12, docArr: lastTwavleMonthProduct, today: today }) ,
-        lastTwavleMonthDiscount: getChartDataByMonth({length: 12, docArr: lastTwavleMonthOrder, today: today,  property: "discount"}) ,
-        lastTwavleMonthRevenue: getChartDataByMonth({length: 12, docArr: lastTwavleMonthOrder, today: today,  property: "total"}) ,
-    } 
+      lastTwavleMonthUsers,
+      lastTwavleMonthProducts,
+      lastTwavleMonthDiscounts,
+      lastTwavleMonthRevenues,
+    };
 
-    cache.set(key, JSON.stringify(line))
-
+    cache.set(key, JSON.stringify(line));
   }
-  res.status(200).json(new ApiResponse(200, "LineCharts data Fetched ", line))
-})
+  res.status(200).json(new ApiResponse(200, "LineCharts data Fetched ", line));
+});

@@ -27,7 +27,7 @@ app.get("/search", searchProduct);
 // /api/v1/product/create
 app.post("/create", adminOnly, singleUpload, createProduct);
 
-//apiv1/product/admin-product
+//api/v1/product/admin-product
 app.get("/admin-product", adminOnly,  getAllProducts);
 
 //api/v1/products/.....

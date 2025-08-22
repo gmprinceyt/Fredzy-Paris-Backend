@@ -19,7 +19,7 @@ export const getAllUsersOrders = TryCatch(async (req, res, next) => {
   if (cache.has(key)) {
     orders = JSON.parse(cache.get(key) as string);
   } else {
-    orders = await Order.find({ user });
+    orders = await Order.find({ user }).sort({createdAt: -1});
     if (!orders) return next(new ErrorHandler("orders Not Found", 404));
     cache.set(key, JSON.stringify(orders));
   }
@@ -37,7 +37,7 @@ export const getAllOrder = TryCatch(async (req, res) => {
   if (cache.has(key)) {
     order = JSON.parse(cache.get(key) as string);
   } else {
-    order = await Order.find().populate("user", "name");
+    order = await Order.find().sort({createdAt: -1}).populate("user", "name");
     cache.set(key, JSON.stringify(order));
   }
 
@@ -135,9 +135,11 @@ export const updateOrderStatus = TryCatch(async (req, res, next) => {
       order.status = "Shipped";
       break;
     case "Shipped":
+      order.status = "OutOfDelivery";
+      break;
+    case "OutOfDelivery":
       order.status = "Delivered";
       break;
-
     default:
       order.status = "Delivered";
       break;

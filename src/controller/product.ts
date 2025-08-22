@@ -159,7 +159,6 @@ export const UpdateProduct = TryCatch(
       product.photo = photo.path;
       logger.info("old Photo Deleted Successfuly");
     }
-
     if (name) product.name = name;
     if (discription) product.discription = discription;
     if (category) product.category = category;
