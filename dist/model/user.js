@@ -44,3 +44,4 @@ schema.virtual("age").get(function () {
     return age;
 });
 export const User = mongoose.model('User', schema);
+//# sourceMappingURL=user.js.map

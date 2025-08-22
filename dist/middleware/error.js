@@ -29,3 +29,4 @@ export const TryCatch = (fn) => {
         }
     };
 };
+//# sourceMappingURL=error.js.map

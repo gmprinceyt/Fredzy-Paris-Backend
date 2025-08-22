@@ -33,3 +33,4 @@ export const connect = async (url) => {
     }
     process.on('SIGINT', gracefulExit);
 };
+//# sourceMappingURL=database.connect.js.map

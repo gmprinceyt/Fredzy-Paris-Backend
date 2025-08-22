@@ -16,3 +16,4 @@ if (process.env.NODE_ENV !== "producation") {
         logger.remove(fileTransport);
     }
 }
+//# sourceMappingURL=logger.js.map

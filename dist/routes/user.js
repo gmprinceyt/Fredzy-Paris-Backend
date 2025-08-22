@@ -9,3 +9,4 @@ app.get("/all", adminOnly, getallUser);
 //router -> api/v1/user/:id ? Dynemic Routing
 app.route("/:id").get(getUser).delete(adminOnly, delateUser);
 export default app;
+//# sourceMappingURL=user.js.map

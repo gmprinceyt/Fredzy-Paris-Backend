@@ -46,3 +46,4 @@ export const delateUser = TryCatch(async (req, res, next) => {
     await user.deleteOne();
     res.status(200).json(new ApiResponse(200, "User delete successfully", user));
 });
+//# sourceMappingURL=user.js.map

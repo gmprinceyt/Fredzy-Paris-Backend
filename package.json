@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node dist/app.js",
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "watch": "tsc -w",
     "dev": "nodemon dist/app.js"
   },
@@ -28,6 +28,7 @@
     "globals": "^16.3.0",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.35.1",
     "winston": "^3.17.0"

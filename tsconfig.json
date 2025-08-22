@@ -1,12 +1,26 @@
 {
   "compilerOptions": {
-    "target": "es2020",                                 
-    "module": "nodenext",                               
-    "rootDir": "src",       
-      "allowSyntheticDefaultImports": true,
-                           
-    "moduleResolution": "nodenext",                  
-    "outDir": "dist",                                
-    "strict": true,                                 
-  }
+    "target": "ES2020",                     // Modern JS features
+    "module": "NodeNext",                   // Use Node.js ESM loader
+    "moduleResolution": "NodeNext",         // Match NodeNext behavior
+    "rootDir": "src",                       // Your source files
+    "outDir": "dist",                       // Compiled output
+    
+    // Interop / Imports
+    "esModuleInterop": true,                // Allow default imports from CJS
+    "allowSyntheticDefaultImports": true,   // Same as above for typing
+    "resolveJsonModule": true,              // Import .json files
+
+    // Strictness
+    "strict": true,                         // Strict type-checking
+    "forceConsistentCasingInFileNames": true, // Avoid case sensitivity bugs
+
+    // Source maps for debugging
+    "sourceMap": true,
+
+    // Preserve import paths so tsc-alias can fix them
+    "preserveSymlinks": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

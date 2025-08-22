@@ -18,3 +18,4 @@ class ApiResponse {
     }
 }
 export { ErrorHandler, ApiResponse };
+//# sourceMappingURL=utills-class.js.map

@@ -17,3 +17,4 @@ export const adminOnly = TryCatch(async (req, res, next) => {
     ;
     next();
 });
+//# sourceMappingURL=auth.js.map

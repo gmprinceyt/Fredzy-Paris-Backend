@@ -184,3 +184,4 @@ export const searchProduct = TryCatch(async (req, res) => {
         pageLength,
     });
 });
+//# sourceMappingURL=product.js.map
