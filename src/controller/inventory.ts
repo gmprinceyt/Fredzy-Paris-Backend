@@ -367,7 +367,7 @@ export const lineCharts = TryCatch(async (req, res) => {
   const key = "line-chart";
 
   if (cache.has(key)) {
-    line = JSON.stringify(cache.get(key) as string);
+    line = JSON.parse(cache.get(key) as string);
   } else {
     const today = new Date();
     const twelveMonth = new Date();
@@ -427,7 +427,7 @@ export const lineCharts = TryCatch(async (req, res) => {
       lastTwavleMonthRevenues,
     };
 
-    cache.set(key, JSON.stringify(line));
+    cache.set(key, JSON.stringify(line)); 
   }
   res.status(200).json(new ApiResponse(200, "LineCharts data Fetched ", line));
 });

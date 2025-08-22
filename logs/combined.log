@@ -410,3 +410,8 @@
 [2025-08-22T04:25:58.126Z [32minfo[39m: Express runing  at http://localhost:8080]
 [2025-08-22T04:26:46.746Z [32minfo[39m: Database Connected ✅]
 [2025-08-22T04:26:46.765Z [32minfo[39m: Express runing  at http://localhost:8080]
+[2025-08-22T04:35:24.254Z [32minfo[39m: Database Connected ✅]
+[2025-08-22T04:35:24.274Z [32minfo[39m: Express runing  at http://localhost:8080]
+[2025-08-22T04:44:36.810Z [33mwarn[39m: ⚠ Database disconnected]
+[2025-08-22T04:45:27.657Z [32minfo[39m: Database Connected ✅]
+[2025-08-22T04:45:27.679Z [32minfo[39m: Express runing  at http://localhost:8080]
